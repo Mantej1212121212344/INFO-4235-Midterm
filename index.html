@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Distance to KPU From Current Position</title>
+
+    <!-- Leaflet library for displaying the map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Distance to KPU from position</h1>
+
+    <div id="result"></div>
+    <div id="map"></div>
+
+    <!-- Leaflet Library -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        // Coordinates for the target KPU
+        var latitude = 49.1332;
+        var longitude = -122.8715;
+
+        // Create the map
+        var map = L.map('map').setView([latitude, longitude], 10);
+
+        // Load the OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Add a marker for KPU 
+        L.marker([latitude, longitude]).addTo(map).bindPopup("KPU Target");
+
+       
+        // Current Location
+        navigator.geolocation.getCurrentPosition(function (position) {
+            var currentPositionLatitude = position.coords.latitude;
+            var currentPositionLongitude = position.coords.longitude;
+
+            // Add a marker for the user's location
+            L.marker([currentPositionLatitude, currentPositionLongitude]).addTo(map).bindPopup("Current Position");
+
+            // Draw a line from the user to KPU
+            L.polyline([
+                [currentPositionLatitude, currentPositionLongitude],
+                [latitude, longitude]
+            ]).addTo(map);
+
+             // Degrees to radians
+        function distance(lat1, lon1, lat2, lon2) {
+            var radius = 6371;
+
+            var dLat = (lat2 - lat1) * Math.PI / 180;
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+
+            var a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) + 
+                Math.cos(lat1 * Math.PI / 180) *
+                Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return radius * c;
+        }
+
+            // Calculate the distance
+            var km = distance(currentPositionLatitude, currentPositionLongitude, latitude, longitude);
+
+            // Display the distance
+            document.getElementById("result").innerHTML =
+                "Distance to KPU target: " + km.toFixed(2) + " km from current position";
+        });
+    </script>
+
+</body>
+
+</html>
